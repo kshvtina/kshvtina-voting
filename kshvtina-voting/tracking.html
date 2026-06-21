@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tracking Voting - Kshvtina</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-gray-50">
+  <!-- Nav sama seperti tips.html -->
+
+  <div class="max-w-6xl mx-auto px-6 py-10">
+    <h1 class="text-3xl font-bold mb-8">Tracking Voting Saya</h1>
+
+    <!-- Form Input -->
+    <div class="bg-white p-8 rounded-3xl shadow mb-10">
+      <h2 class="text-xl font-semibold mb-4">Tambah Data Voting</h2>
+      <div class="grid grid-cols-2 gap-4">
+        <input id="tanggal" type="date" class="border p-3 rounded-2xl">
+        <input id="kandidat" type="text" placeholder="Kandidat / Pilihan" class="border p-3 rounded-2xl">
+        <input id="suara" type="number" placeholder="Jumlah Suara" class="border p-3 rounded-2xl">
+        <input id="notes" type="text" placeholder="Catatan" class="border p-3 rounded-2xl col-span-2">
+      </div>
+      <button onclick="tambahData()" 
+              class="mt-6 bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-2xl">
+        Simpan Data
+      </button>
+    </div>
+
+    <!-- Tabel Data -->
+    <div class="bg-white rounded-3xl shadow overflow-hidden">
+      <table class="w-full" id="dataTable">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="p-4 text-left">Tanggal</th>
+            <th class="p-4 text-left">Kandidat</th>
+            <th class="p-4 text-left">Suara</th>
+            <th class="p-4 text-left">Notes</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody" class="divide-y"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const supabase = Supabase.createClient('https://tyrjphwdneahqjwqszuo.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5cmpwaHdkbmVhaHFqd3FzenVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1MTAyNTAsImV4cCI6MjA5NzA4NjI1MH0.9qlqiyAALvOznLJ4Yq8VMPnLvvyW6CbOKlin6DrqQvs');
+    let currentUser = null;
+
+    async function checkAuth() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return window.location.href = 'login.html';
+      currentUser = session.user;
+      loadData();
+    }
+
+    async function tambahData() {
+      const tanggal = document.getElementById('tanggal').value;
+      const kandidat = document.getElementById('kandidat').value;
+      const suara = document.getElementById('suara').value;
+
+      if (!tanggal || !kandidat || !suara) return alert("Lengkapi data!");
+
+      const { error } = await supabase
+        .from('voting_records')
+        .insert({
+          user_id: currentUser.id,
+          tanggal,
+          kandidat,
+          suara: parseInt(suara),
+          notes: document.getElementById('notes').value
+        });
+
+      if (error) alert(error.message);
+      else {
+        alert("Data berhasil disimpan!");
+        loadData();
+        // Reset form
+        document.getElementById('tanggal').value = '';
+        document.getElementById('kandidat').value = '';
+        document.getElementById('suara').value = '';
+        document.getElementById('notes').value = '';
+      }
+    }
+
+    async function loadData() {
+      const { data, error } = await supabase
+        .from('voting_records')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .order('tanggal', { ascending: false });
+
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+
+      if (data) {
+        data.forEach(row => {
+          tbody.innerHTML += `
+            <tr class="hover:bg-gray-50">
+              <td class="p-4">${row.tanggal}</td>
+              <td class="p-4">${row.kandidat}</td>
+              <td class="p-4 font-semibold">${row.suara}</td>
+              <td class="p-4">${row.notes || '-'}</td>
+            </tr>`;
+        });
+      }
+    }
+
+    window.onload = checkAuth;
+  </script>
+</body>
+</html>

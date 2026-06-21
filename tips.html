@@ -5,43 +5,60 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tips & Trick - Kshvtina Voting</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; }
+  </style>
 </head>
-<body class="bg-gray-50">
-  <nav class="bg-white shadow p-4">
-    <div class="max-w-6xl mx-auto flex justify-between">
-      <h1 class="text-2xl font-bold text-blue-600">Kshvtina Voting</h1>
-      <div class="space-x-6">
-        <a href="tracking.html" class="hover:text-blue-600">Tracking</a>
-        <a href="tips.html" class="text-blue-600 font-medium">Tips & Trick</a>
-        <a href="dashboard.html" class="hover:text-blue-600">Dashboard</a>
-        <button onclick="logout()" class="text-red-500">Logout</button>
+<body class="bg-[#f8fafc]">
+
+  <!-- Navbar -->
+  <nav class="bg-white border-b shadow-sm">
+    <div class="max-w-6xl mx-auto px-6 py-5 flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <img src="assets/kshvtina_logo.png" alt="Kshvtina" class="h-9">
+        <h1 class="font-bold text-xl text-[#2a5f8c]">KSHVTINA MEMBER</h1>
+      </div>
+      <div class="flex items-center gap-8 text-sm">
+        <a href="tracking.html" class="hover:text-[#6da7cc] transition">Tracking</a>
+        <a href="tips.html" class="text-[#6da7cc] font-medium">Tips & Trick</a>
+        <a href="dashboard.html" class="hover:text-[#6da7cc] transition">Dashboard</a>
+        <button onclick="logout()" class="text-red-600 hover:underline font-medium">Logout</button>
       </div>
     </div>
   </nav>
 
-  <div class="max-w-4xl mx-auto px-6 py-10">
-    <h1 class="text-3xl font-bold mb-8">Tips & Trick Voting</h1>
-    <div class="bg-white p-8 rounded-3xl shadow">
+  <div class="max-w-4xl mx-auto px-6 py-12">
+    <h1 class="text-4xl font-bold text-[#2a5f8c] mb-2">Tips & Trick Voting</h1>
+    <p class="text-zinc-600 mb-10">Selamat datang, <span id="welcomeUser" class="font-semibold text-[#6da7cc]"></span>!</p>
+
+    <div class="bg-white rounded-3xl shadow p-8">
       <!-- Isi tips & trick kamu di sini -->
-      <p>Konten tips & trick voting...</p>
+      <p class="text-zinc-700">Konten Tips & Trick akan di-update di sini.</p>
     </div>
   </div>
 
+  <!-- Proteksi Script -->
   <script>
-    const supabase = Supabase.createClient('https://tyrjphwdneahqjwqszuo.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5cmpwaHdkbmVhaHFqd3FzenVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1MTAyNTAsImV4cCI6MjA5NzA4NjI1MH0.9qlqiyAALvOznLJ4Yq8VMPnLvvyW6CbOKlin6DrqQvs');
-
-    async function checkAuth() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) window.location.href = 'login.html';
+    // Cek login
+    if (localStorage.getItem("isLoggedIn") !== "true") {
+      alert("Silakan login terlebih dahulu!");
+      window.location.href = "login.html";
     }
 
-    async function logout() {
-      await supabase.auth.signOut();
-      window.location.href = 'login.html';
-    }
+    // Tampilkan nama user
+    document.addEventListener("DOMContentLoaded", () => {
+      const username = localStorage.getItem("username");
+      if (username) {
+        document.getElementById("welcomeUser").textContent = username;
+      }
+    });
 
-    window.onload = checkAuth;
+    function logout() {
+      if (confirm("Yakin ingin keluar?")) {
+        localStorage.clear();
+        window.location.href = "login.html";
+      }
+    }
   </script>
 </body>
 </html>
